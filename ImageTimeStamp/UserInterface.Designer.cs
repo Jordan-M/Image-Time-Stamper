@@ -1,6 +1,6 @@
 ﻿namespace ImageTimeStamp
 {
-    partial class Form1
+    partial class UserInterface
     {
         /// <summary>
         /// Required designer variable.
@@ -77,7 +77,7 @@
             this.uxProgressLabel.TabIndex = 3;
             this.uxProgressLabel.Text = "0/0";
             // 
-            // Form1
+            // UserInterface
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -89,7 +89,7 @@
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(300, 147);
             this.MinimumSize = new System.Drawing.Size(300, 147);
-            this.Name = "Form1";
+            this.Name = "UserInterface";
             this.Text = "Photo Time Stamper";
             this.ResumeLayout(false);
             this.PerformLayout();

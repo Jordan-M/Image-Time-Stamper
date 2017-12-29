@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
@@ -7,12 +6,12 @@ using System.Windows.Forms;
 
 namespace ImageTimeStamp
 {
-    public partial class Form1 : Form
+    public partial class UserInterface : Form
     {
         private static Stamp stamp = new Stamp(new SolidBrush(Color.Red), new Font("Arial", 24, FontStyle.Bold));
         private static TimeStamper timeStamper = new TimeStamper();
 
-        public Form1()
+        public UserInterface()
         {
             InitializeComponent();
         }
