@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
@@ -8,50 +9,49 @@ namespace ImageTimeStamp
 {
     public partial class Form1 : Form
     {
-        readonly string DESKTOP = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        private static Stamp stamp = new Stamp(new SolidBrush(Color.Red), new Font("Arial", 24, FontStyle.Bold));
+        private static TimeStamper timeStamper = new TimeStamper();
 
-        Stamp stamp = new Stamp(new SolidBrush(Color.Red), new Font("Arial", 24, FontStyle.Bold));
         public Form1()
         {
             InitializeComponent();
         }
 
-        private void TimeStampImage(string imagePath, string savePath, Stamp stamp)
+        private void uxOpenFileButton_Click(object sender, EventArgs e)
         {
-            string fileName = Path.Combine(savePath, ExtractFileName(imagePath));
-            if (File.Exists(fileName))
+            if (uxOpenFile.ShowDialog() == DialogResult.OK)
             {
-                Console.WriteLine("Skipped: " + fileName);
-                return;
-            }
-
-            try
-            {
-                using (Bitmap image = new Bitmap(imagePath))
+                if (uxSaveFolderBrowser.ShowDialog() == DialogResult.OK)
                 {
-                    using (TimeStamper stamper = new TimeStamper(image, stamp))
-                    {
-                        try
-                        {
-                            stamper.TimeStamp().Save(fileName);
-                        }
-                        catch (ArgumentException ex)
-                        {
-                            MessageBox.Show(ex.ToString());
-                        }
-                        Console.WriteLine(imagePath);
-                    }
+                    TimeStamp(uxOpenFile.FileName, uxSaveFolderBrowser.SelectedPath, stamp);
                 }
-            }
-            catch (ArgumentException)
-            {
-                return;
             }
         }
 
-        private string ExtractFileName(string filename)
+        private async void uxOpenFolderButton_ClickAsync(object sender, EventArgs e)
         {
-            return filename.Substring(filename.LastIndexOf("\\") + 1);
+            if (uxOpenFolderDialog.ShowDialog() == DialogResult.OK)
+            {
+                if (uxSaveFolderBrowser.ShowDialog() == DialogResult.OK)
+                {
+                    ResetUI();
+
+                    await TraverseFolderAsync(uxOpenFolderDialog.SelectedPath, uxSaveFolderBrowser.SelectedPath);
+                    MessageBox.Show("Finished copying files. Report generated at root of Time Stamped Images folder.");
+
+                    ResetUI();
+                }
+            }
+        }
+
+        private async Task TraverseFolderAsync(string readPath, string writePath)
+        {
+            string workingPath = Path.Combine(writePath, "Time Stamped Images");
+
+            if (!Directory.Exists(workingPath))
+                Directory.CreateDirectory(workingPath);
+
+            await Task.Factory.StartNew(() => TraverseFolder(readPath, workingPath));
         }
 
         private void TraverseFolder(string folder, string destFolder)
@@ -69,48 +69,50 @@ namespace ImageTimeStamp
             }
 
             FileInfo[] files = dir.GetFiles();
-            foreach(FileInfo file in files)
+            foreach (FileInfo file in files)
             {
                 string savePath = Path.Combine(destFolder, file.Name);
-                TimeStampImage(file.FullName, destFolder, stamp);
+                TimeStamp(file.FullName, destFolder, stamp);
+
+                if (InvokeRequired)
+                {
+                    BeginInvoke(new Action(() =>
+                    {
+                        uxProgressBar.Value++;
+                        uxProgressLabel.Text = uxProgressBar.Value + "/" + uxProgressBar.Maximum;
+                    }));
+                }
             }
 
-            foreach(DirectoryInfo subdir in dirs)
+            foreach (DirectoryInfo subdir in dirs)
             {
                 TraverseFolder(subdir.FullName, Path.Combine(destFolder, subdir.Name));
             }
-        }
-
-        private void IsImage()
-        {
 
         }
 
-        private void uxOpenFolderButton_Click(object sender, EventArgs e)
+        private void TimeStamp(string imagePath, string savePath, Stamp stamp)
         {
-            if (uxOpenFolderDialog.ShowDialog() == DialogResult.OK)
-            {
-                if (uxSaveFolderBrowser.ShowDialog() == DialogResult.OK)
-                {
-                    string workingPath = Path.Combine(uxSaveFolderBrowser.SelectedPath, "Time Stamped Images");
-
-                    if (!Directory.Exists(workingPath))
-                        Directory.CreateDirectory(workingPath);
-
-                    Task.Factory.StartNew(() => TraverseFolder(uxOpenFolderDialog.SelectedPath, workingPath)).ContinueWith(task => MessageBox.Show("Finished copying files. Report generated at: " + workingPath));
-                }
-            }
+            timeStamper.Stamp(imagePath, savePath, stamp);
         }
 
-        private void uxOpenFileButton_Click(object sender, EventArgs e)
+        private void ResetUI()
         {
-            if (uxOpenFile.ShowDialog() == DialogResult.OK)
-            {
-                if (uxSaveFolderBrowser.ShowDialog() == DialogResult.OK)
-                {
-                    TimeStampImage(uxOpenFile.FileName, uxSaveFolderBrowser.SelectedPath, stamp);
-                }
-            }
+            ToggleUIButtons();
+            ResetProgress();
+        }
+
+        private void ResetProgress()
+        {
+            uxProgressBar.Value = 0;
+            uxProgressBar.Maximum = FileHelper.CalculateNumFiles(uxOpenFolderDialog.SelectedPath, true);
+            uxProgressLabel.Text = "0/" + uxProgressBar.Maximum;
+        }
+
+        private void ToggleUIButtons()
+        {
+            uxOpenFolderButton.Enabled = !uxOpenFolderButton.Enabled;
+            uxOpenFileButton.Enabled = !uxOpenFileButton.Enabled;
         }
     }
 }

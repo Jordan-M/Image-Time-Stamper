@@ -34,21 +34,24 @@
             this.uxOpenFileButton = new System.Windows.Forms.Button();
             this.uxSaveFolderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.uxProgressBar = new System.Windows.Forms.ProgressBar();
+            this.uxProgressLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // uxOpenFolderButton
             // 
-            this.uxOpenFolderButton.Location = new System.Drawing.Point(3, 118);
+            this.uxOpenFolderButton.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.uxOpenFolderButton.Location = new System.Drawing.Point(12, 72);
             this.uxOpenFolderButton.Name = "uxOpenFolderButton";
             this.uxOpenFolderButton.Size = new System.Drawing.Size(123, 23);
             this.uxOpenFolderButton.TabIndex = 0;
             this.uxOpenFolderButton.Text = "Select Folder";
             this.uxOpenFolderButton.UseVisualStyleBackColor = true;
-            this.uxOpenFolderButton.Click += new System.EventHandler(this.uxOpenFolderButton_Click);
+            this.uxOpenFolderButton.Click += new System.EventHandler(this.uxOpenFolderButton_ClickAsync);
             // 
             // uxOpenFileButton
             // 
-            this.uxOpenFileButton.Location = new System.Drawing.Point(149, 118);
+            this.uxOpenFileButton.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.uxOpenFileButton.Location = new System.Drawing.Point(149, 72);
             this.uxOpenFileButton.Name = "uxOpenFileButton";
             this.uxOpenFileButton.Size = new System.Drawing.Size(123, 23);
             this.uxOpenFileButton.TabIndex = 1;
@@ -58,22 +61,38 @@
             // 
             // uxProgressBar
             // 
-            this.uxProgressBar.Location = new System.Drawing.Point(3, 89);
+            this.uxProgressBar.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.uxProgressBar.Location = new System.Drawing.Point(12, 12);
             this.uxProgressBar.Name = "uxProgressBar";
-            this.uxProgressBar.Size = new System.Drawing.Size(269, 23);
+            this.uxProgressBar.Size = new System.Drawing.Size(260, 23);
             this.uxProgressBar.TabIndex = 2;
+            // 
+            // uxProgressLabel
+            // 
+            this.uxProgressLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.uxProgressLabel.AutoSize = true;
+            this.uxProgressLabel.Location = new System.Drawing.Point(129, 38);
+            this.uxProgressLabel.Name = "uxProgressLabel";
+            this.uxProgressLabel.Size = new System.Drawing.Size(24, 13);
+            this.uxProgressLabel.TabIndex = 3;
+            this.uxProgressLabel.Text = "0/0";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 201);
+            this.ClientSize = new System.Drawing.Size(284, 108);
+            this.Controls.Add(this.uxProgressLabel);
             this.Controls.Add(this.uxProgressBar);
             this.Controls.Add(this.uxOpenFileButton);
             this.Controls.Add(this.uxOpenFolderButton);
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(300, 147);
+            this.MinimumSize = new System.Drawing.Size(300, 147);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Photo Time Stamper";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -85,6 +104,7 @@
         private System.Windows.Forms.Button uxOpenFileButton;
         private System.Windows.Forms.FolderBrowserDialog uxSaveFolderBrowser;
         private System.Windows.Forms.ProgressBar uxProgressBar;
+        private System.Windows.Forms.Label uxProgressLabel;
     }
 }
 

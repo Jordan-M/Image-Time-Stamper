@@ -38,8 +38,6 @@ namespace ImageTimeStamp
                     throw new ArgumentException("Image does not have a date/time field.");
                 }
             }
-            
-
 
             return regex.Replace(Encoding.UTF8.GetString(prop.Value), "-", 2);
         }

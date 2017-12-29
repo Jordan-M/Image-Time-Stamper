@@ -1,66 +1,82 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 
 namespace ImageTimeStamp
 {
-    class TimeStamper : IDisposable
+    class TimeStamper
     {
-        private Bitmap _image;
         private Graphics _graphics;
-        private Stamp _stamp;
-
-        public Bitmap Image { get; }
         public Graphics Graphic { get; }
 
-
-        public TimeStamper(Bitmap image, Stamp stamp)
+        public void Stamp(string imagePath, string savePath, Stamp stamp)
         {
-            if (image == null)
-                throw new ArgumentNullException();
+            string fileName = Path.Combine(savePath, FileHelper.ExtractFileName(imagePath));
+            if (File.Exists(fileName))
+            {
+                // Build report?
+                Console.WriteLine("Skipped: " + fileName);
+                return;
+            }
 
-            _graphics = Graphics.FromImage(image);
-            _graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            _image = image;
-            _stamp = stamp;
+            try
+            {
+                using (Bitmap image = new Bitmap(imagePath))
+                {
+                    try
+                    {
+                        SetGraphics(image);
+                        TimeStamp(image, stamp).Save(fileName);
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        // Build report
+                    }
+                    Console.WriteLine(imagePath);
+                }
+
+            }
+            catch (ArgumentException) // Wasn't a image file
+            {
+                return;
+            }
         }
 
-        public void Dispose()
-        {
-            _image.Dispose();
-            _graphics.Dispose();
-        }
-
-        public Bitmap TimeStamp()
+        private Bitmap TimeStamp(Bitmap image, Stamp stamp)
         {
             string dateTime;
             try
             {
-                dateTime = MetadataExtractor.ExtractTimeStamp(_image);
+                dateTime = MetadataExtractor.ExtractTimeStamp(image);
             }
             catch (ArgumentException ex)
             {
                 throw ex;
             }
 
-            int orientation = MetadataExtractor.ExtractOrientation(_image);
+            int orientation = MetadataExtractor.ExtractOrientation(image);
 
-             _stamp.StampFont = FontHelper.GetAdjustedFont(_graphics, dateTime, _stamp.StampFont, 1500, 100, 24, true);
+             stamp.StampFont = FontHelper.GetAdjustedFont(_graphics, dateTime, stamp.StampFont, 1500, 100, 24, true);
 
             if (orientation == 3)
-                    return StampOrientation3(dateTime, _stamp);
+            {
+                return StampOrientation3(image, dateTime, stamp);
+            }
             else
-                    return StampOrientation1(dateTime, _stamp);
+            {
+                StampOrientation1(dateTime, stamp);
+                return image;
+            }
         }
 
-        private Bitmap StampOrientation1(string timestamp, Stamp stamp)
+        private void StampOrientation1(string timestamp, Stamp stamp)
         {
             _graphics.DrawString(timestamp, stamp.StampFont, stamp.Brush, new Point(0, 0));
-            return _image;
         }
 
 
-        private Bitmap StampOrientation3(string timestamp, Stamp stamp)
+        private Bitmap StampOrientation3(Bitmap image, string timestamp, Stamp stamp)
         {
             /* new Point(0, 0) // BOTTOM RIGHT
                new Point(0, bitMapImage.Height - 75) // TOP RIGHT
@@ -71,10 +87,19 @@ namespace ImageTimeStamp
             GraphicsState state = _graphics.Save();
             _graphics.ResetTransform();
             _graphics.RotateTransform(180);
-            _graphics.TranslateTransform(_image.Width - 75, _image.Height - 45, MatrixOrder.Append);
+            _graphics.TranslateTransform(image.Width - 75, image.Height - 45, MatrixOrder.Append);
             _graphics.DrawString(timestamp, stamp.StampFont, stamp.Brush, new Point(0, 0));
             _graphics.Restore(state);
-            return _image;
+            return image;
+        }
+
+        private void SetGraphics(Bitmap image)
+        {
+            if (_graphics != null)
+                _graphics.Dispose();
+
+            _graphics = Graphics.FromImage(image);
+            _graphics.SmoothingMode = SmoothingMode.AntiAlias;
         }
     }
 }
