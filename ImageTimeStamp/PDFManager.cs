@@ -131,9 +131,9 @@ namespace ImageTimeStamp
 
             currentYOffset += labelFont.Height + spacing;
 
+            XTextFormatter test = new XTextFormatter(graphics);
             foreach (string error in errorPaths)
             {
-                XTextFormatter test = new XTextFormatter(graphics);
                 test.DrawString(error,
                                     subTextFont,
                                     XBrushes.Black,
