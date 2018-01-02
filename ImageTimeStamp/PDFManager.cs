@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using PdfSharp.Pdf;
 using PdfSharp.Drawing;
 using System.Diagnostics;
+using System.Drawing;
+using PdfSharp.Drawing.Layout;
 
 namespace ImageTimeStamp
 {
@@ -131,12 +133,16 @@ namespace ImageTimeStamp
 
             foreach (string error in errorPaths)
             {
-                graphics.DrawString(error,
+                XTextFormatter test = new XTextFormatter(graphics);
+                test.DrawString(error,
                                     subTextFont,
                                     XBrushes.Black,
-                                    new XRect(leftPadding * 2, currentYOffset, page.Width, page.Height),
+                                    new XRect(leftPadding * 2, currentYOffset, page.Width - leftPadding * 2, page.Height),
                                     XStringFormats.TopLeft);
-                currentYOffset += subTextFont.Height + spacing;
+
+                if (FontHelper.GetWidth(graphics, subTextFont, error) > page.Width - leftPadding * 2)
+                    currentYOffset += spacing;
+                 currentYOffset += subTextFont.Height + spacing;
             }
         }
 

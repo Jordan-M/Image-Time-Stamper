@@ -23,7 +23,13 @@ namespace ImageTimeStamp
             {
                 if (uxSaveFolderBrowser.ShowDialog() == DialogResult.OK)
                 {
+                    ResetUI();
+
                     TimeStamp(uxOpenFile.FileName, uxSaveFolderBrowser.SelectedPath, stamp, report);
+                    PDFManager.GenerateReport(report).Save(Path.Combine(uxSaveFolderBrowser.SelectedPath, "Time Stamp Report.pdf"));
+                    MessageBox.Show("Finished copying files. Report generated at " + Path.Combine(uxSaveFolderBrowser.SelectedPath, "Time Stamped Images"));
+
+                    ResetUI();
                 }
             }
         }
@@ -40,7 +46,7 @@ namespace ImageTimeStamp
 
                     await TraverseFolderAsync(uxOpenFolderDialog.SelectedPath, uxSaveFolderBrowser.SelectedPath);
                     PDFManager.GenerateReport(report).Save(Path.Combine(uxSaveFolderBrowser.SelectedPath, "Time Stamped Images", "Time Stamp Report.pdf"));
-                    MessageBox.Show("Finished copying files. Report generated at root of Time Stamped Images folder.");
+                    MessageBox.Show("Finished copying files. Report generated at " + Path.Combine(uxSaveFolderBrowser.SelectedPath, "Time Stamped Images"));
 
                     ResetUI();
                 }
