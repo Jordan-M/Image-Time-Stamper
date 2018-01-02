@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -10,36 +11,42 @@ namespace ImageTimeStamp
         private Graphics _graphics;
         public Graphics Graphic { get; }
 
-        public void Stamp(string imagePath, string savePath, Stamp stamp)
+        public void Stamp(string imagePath, string savePath, Stamp stamp, ReportData report = null)
         {
             string fileName = Path.Combine(savePath, FileHelper.ExtractFileName(imagePath));
-            if (File.Exists(fileName))
-            {
-                // Build report?
-                Console.WriteLine("Skipped: " + fileName);
-                return;
-            }
 
-            try
+            if (!File.Exists(fileName))
             {
-                using (Bitmap image = new Bitmap(imagePath))
+                try
                 {
-                    try
+                    using (Bitmap image = new Bitmap(imagePath))
                     {
-                        SetGraphics(image);
-                        TimeStamp(image, stamp).Save(fileName);
-                    }
-                    catch (ArgumentException ex)
-                    {
-                        // Build report
-                    }
-                    Console.WriteLine(imagePath);
-                }
+                        try
+                        {
+                            SetGraphics(image);
+                            TimeStamp(image, stamp).Save(fileName);
 
+                            if (report != null)
+                                report.TotalFilesStamped += 1;
+                        }
+                        catch (ArgumentException)
+                        {
+                            if (report != null)
+                                report.AddError(imagePath);
+                        }
+                    }
+
+                }
+                catch (ArgumentException)
+                {
+                    // Wasn't a image file so just skip it
+                }
             }
-            catch (ArgumentException) // Wasn't a image file
+
+            if (report != null)
             {
-                return;
+                report.AddFileType(FileHelper.ExtractFileExt(imagePath));
+                report.TotalFiles += 1;
             }
         }
 

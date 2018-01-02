@@ -10,11 +10,11 @@ namespace ImageTimeStamp
     {
         private static Stamp stamp = new Stamp(new SolidBrush(Color.Red), new Font("Arial", 24, FontStyle.Bold));
         private static TimeStamper timeStamper = new TimeStamper();
+        ReportData report = new ReportData();
 
         public UserInterface()
         {
             InitializeComponent();
-            PDFManager pdf = new PDFManager();
         }
 
         private void uxOpenFileButton_Click(object sender, EventArgs e)
@@ -23,7 +23,7 @@ namespace ImageTimeStamp
             {
                 if (uxSaveFolderBrowser.ShowDialog() == DialogResult.OK)
                 {
-                    TimeStamp(uxOpenFile.FileName, uxSaveFolderBrowser.SelectedPath, stamp);
+                    TimeStamp(uxOpenFile.FileName, uxSaveFolderBrowser.SelectedPath, stamp, report);
                 }
             }
         }
@@ -32,11 +32,14 @@ namespace ImageTimeStamp
         {
             if (uxOpenFolderDialog.ShowDialog() == DialogResult.OK)
             {
+                report.FolderPath = uxOpenFolderDialog.SelectedPath;
+
                 if (uxSaveFolderBrowser.ShowDialog() == DialogResult.OK)
                 {
                     ResetUI();
 
                     await TraverseFolderAsync(uxOpenFolderDialog.SelectedPath, uxSaveFolderBrowser.SelectedPath);
+                    PDFManager.GenerateReport(report).Save(Path.Combine(uxSaveFolderBrowser.SelectedPath, "Time Stamped Images", "Time Stamp Report.pdf"));
                     MessageBox.Show("Finished copying files. Report generated at root of Time Stamped Images folder.");
 
                     ResetUI();
@@ -72,7 +75,7 @@ namespace ImageTimeStamp
             foreach (FileInfo file in files)
             {
                 string savePath = Path.Combine(destFolder, file.Name);
-                TimeStamp(file.FullName, destFolder, stamp);
+                TimeStamp(file.FullName, destFolder, stamp, report);
 
                 if (InvokeRequired)
                 {
@@ -91,9 +94,9 @@ namespace ImageTimeStamp
 
         }
 
-        private void TimeStamp(string imagePath, string savePath, Stamp stamp)
+        private void TimeStamp(string imagePath, string savePath, Stamp stamp, ReportData report)
         {
-            timeStamper.Stamp(imagePath, savePath, stamp);
+            timeStamper.Stamp(imagePath, savePath, stamp, report);
         }
 
         private void ResetUI()

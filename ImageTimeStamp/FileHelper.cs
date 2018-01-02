@@ -18,7 +18,7 @@ namespace ImageTimeStamp
         /// <returns>The filename</returns>
         public static string ExtractFileName(string filepath)
         {
-            return filepath.Substring(filepath.LastIndexOf("\\") + 1);
+            return GetAllAfterLast(filepath, '\\');
         }
 
         /// <summary>
@@ -31,6 +31,16 @@ namespace ImageTimeStamp
         {
             SearchOption option = (searchSubfolders) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             return Directory.GetFiles(location, "*.*", option).Length;
+        }
+
+        public static string ExtractFileExt(string filepath)
+        {
+            return GetAllAfterLast(filepath, '.');
+        }
+
+        private static string GetAllAfterLast(string filepath, char c)
+        {
+            return filepath.Substring(filepath.LastIndexOf(c) + 1);
         }
     }
 }
