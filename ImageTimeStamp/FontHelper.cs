@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PdfSharp.Drawing;
+using System;
 using System.Drawing;
 
 namespace ImageTimeStamp
@@ -33,7 +34,12 @@ namespace ImageTimeStamp
             }
         }
 
-        public static double GetWidth(Graphics graphics, Font font, String text)
+        public static double GetWidth(Graphics graphics, Font font, string text)
+        {
+            return graphics.MeasureString(text, font).Width;
+        }
+
+        public static double GetWidth(XGraphics graphics, XFont font, string text)
         {
             return graphics.MeasureString(text, font).Width;
         }

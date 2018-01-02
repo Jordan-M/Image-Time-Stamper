@@ -1,19 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/* FileHelper.cs
+ * Author: Jordan Mryyan
+ */
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace ImageTimeStamp
 {
+    /// <summary>
+    /// A collection of methods dealing with files and filepaths
+    /// </summary>
     static class FileHelper
     {
-        public static string ExtractFileName(string filename)
+        /// <summary>
+        /// Gets the name of a file from a path string
+        /// </summary>
+        /// <param name="filepath">The full path of a file</param>
+        /// <returns>The filename</returns>
+        public static string ExtractFileName(string filepath)
         {
-            return filename.Substring(filename.LastIndexOf("\\") + 1);
+            return filepath.Substring(filepath.LastIndexOf("\\") + 1);
         }
 
+        /// <summary>
+        /// Calculates the total number of files in a directory
+        /// </summary>
+        /// <param name="location">Directory of files to count</param>
+        /// <param name="searchSubfolders">If true, searches all of the subdolders in location else searches only root folder</param>
+        /// <returns>Number of files in a given directory</returns>
         public static int CalculateNumFiles(string location, bool searchSubfolders)
         {
             SearchOption option = (searchSubfolders) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;

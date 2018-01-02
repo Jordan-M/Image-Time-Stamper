@@ -14,6 +14,7 @@ namespace ImageTimeStamp
         public UserInterface()
         {
             InitializeComponent();
+            PDFManager pdf = new PDFManager();
         }
 
         private void uxOpenFileButton_Click(object sender, EventArgs e)
